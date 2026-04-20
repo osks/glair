@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "glair"
+version = "0.0.1"
+description = "CLI for running coding-agent code reviews on GitLab merge requests"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "click>=8.1",
+    "python-gitlab>=4.0",
+]
+
+[project.scripts]
+glair = "glair.cli:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/glair"]
