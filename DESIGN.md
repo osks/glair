@@ -58,6 +58,9 @@ Checks, in order:
 1. CWD is a git repo.
 2. `git rev-parse HEAD` equals `meta.json:head_sha`.
 3. Working tree is clean (no staged, unstaged, or untracked files).
+   Entries under `glair/` are ignored — bundles live there and would
+   otherwise always trip this check. Users can also add `glair/` to
+   their repo's `.gitignore` to keep `git status` clean globally.
 4. Current branch matches `meta.json:source_branch` (warning, not failure,
    if only the SHA matches — detached HEAD is fine).
 
@@ -72,13 +75,15 @@ fail working tree clean    modified: src/foo.py
 
 Exit non-zero on any `fail`.
 
-### `glair review [BUNDLE] -- <agent-cmd …>`
+### `glair review [--bundle BUNDLE] -- <agent-cmd …>`
 
 Runs the agent against the bundle.
 
 1. Runs `verify`; aborts on failure.
-2. Writes `INSTRUCTIONS.md` into the bundle — the agent's brief and the
-   exact `result/` layout it must produce.
+2. (Re)writes `INSTRUCTIONS.md` into the bundle — the agent's brief and
+   the exact `result/` layout it must produce. Regenerated on every run
+   so the contract stays in sync with the CLI; if you want a custom
+   prompt, wrap `<agent-cmd>` yourself.
 3. Spawns `<agent-cmd>` with:
    - `cwd` = repo root
    - env `GLAIR_BUNDLE` = absolute bundle path
@@ -154,12 +159,16 @@ The CLI's source of truth for anything the agent shouldn't touch.
   "start_sha": "f1f1f1f1…",
   "head_sha":  "a1b2c3d4…",
   "created_at": "2026-04-18T10:12:00Z",
-  "labels": ["backend", "reliability"]
+  "labels": ["backend", "reliability"],
+  "milestone": "v2.0",
+  "draft": false
 }
 ```
 
 `base_sha`, `start_sha`, `head_sha` are carried verbatim from GitLab's
 MR payload; they are needed to build `position` objects when posting.
+`milestone` is `null` when unset. `draft` is `true` for WIP/draft MRs so
+the agent can take that into account.
 
 ### `mr.md`
 

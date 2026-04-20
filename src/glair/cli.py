@@ -1,4 +1,8 @@
+import sys
+
 import click
+
+from glair import verify as verify_mod
 
 
 @click.group()
@@ -21,15 +25,15 @@ def fetch(mr_ref: str, out_dir: str | None) -> None:
                 required=False)
 def verify(bundle: str | None) -> None:
     """Check the working tree matches the bundle's head SHA and is clean."""
-    raise click.ClickException("verify: not implemented yet")
+    sys.exit(verify_mod.run(bundle))
 
 
 @cli.command(context_settings={"ignore_unknown_options": True})
-@click.argument("bundle", type=click.Path(exists=True, file_okay=False),
-                required=False)
+@click.option("--bundle", "bundle", type=click.Path(exists=True, file_okay=False),
+              default=None, help="Bundle path (default: unique glair/* subdir).")
 @click.argument("agent_cmd", nargs=-1, required=True)
 def review(bundle: str | None, agent_cmd: tuple[str, ...]) -> None:
-    """Run an agent against a bundle. Everything after `--` is the agent command."""
+    """Run an agent against a bundle. Pass the agent command after `--`."""
     raise click.ClickException("review: not implemented yet")
 
 
