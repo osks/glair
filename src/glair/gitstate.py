@@ -43,3 +43,11 @@ def porcelain_status(cwd: Path | None = None) -> list[str]:
     """Non-empty list means the working tree is dirty."""
     out = _git("status", "--porcelain", cwd=cwd)
     return [line for line in out.splitlines() if line]
+
+
+def remote_url(name: str = "origin", cwd: Path | None = None) -> str | None:
+    """Return the remote URL, or None if the remote doesn't exist."""
+    try:
+        return _git("remote", "get-url", name, cwd=cwd).strip() or None
+    except GitError:
+        return None

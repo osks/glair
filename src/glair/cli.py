@@ -1,7 +1,12 @@
 import sys
+from pathlib import Path
 
 import click
 
+from glair import config as config_mod
+from glair import fetch as fetch_mod
+from glair import gitlab_client
+from glair import gitref
 from glair import verify as verify_mod
 
 
@@ -17,7 +22,22 @@ def cli() -> None:
               help="Bundle output directory (default: glair/<iid>/).")
 def fetch(mr_ref: str, out_dir: str | None) -> None:
     """Fetch MR data from GitLab and write a review bundle."""
-    raise click.ClickException("fetch: not implemented yet")
+    try:
+        ref = gitref.resolve(mr_ref)
+    except gitref.RefError as e:
+        raise click.ClickException(str(e))
+
+    try:
+        auth = config_mod.load_auth(url_override=ref.url)
+    except config_mod.AuthError as e:
+        raise click.ClickException(str(e))
+
+    payload = gitlab_client.fetch_mr_payload(auth, ref.project, ref.iid)
+    target = Path(out_dir) if out_dir else fetch_mod.default_out_dir(ref.iid)
+    fetch_mod.write_bundle(payload, target)
+
+    files = len(payload.changes)
+    click.echo(f"{target}/  —  {payload.mr['title']!r}  ({files} file{'s' if files != 1 else ''})")
 
 
 @cli.command()
