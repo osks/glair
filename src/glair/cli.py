@@ -7,6 +7,7 @@ from glair import config as config_mod
 from glair import fetch as fetch_mod
 from glair import gitlab_client
 from glair import gitref
+from glair import review as review_mod
 from glair import verify as verify_mod
 
 
@@ -54,7 +55,7 @@ def verify(bundle: str | None) -> None:
 @click.argument("agent_cmd", nargs=-1, required=True)
 def review(bundle: str | None, agent_cmd: tuple[str, ...]) -> None:
     """Run an agent against a bundle. Pass the agent command after `--`."""
-    raise click.ClickException("review: not implemented yet")
+    sys.exit(review_mod.run(bundle, list(agent_cmd)))
 
 
 @cli.command()
